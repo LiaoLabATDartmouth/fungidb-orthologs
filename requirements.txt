@@ -1,0 +1,5 @@
+# Install the package instead: pip install -e .
+# Or: pip install -e ".[dev]"  for tests
+# Or: pip install -e ".[api]"  for REST API
+
+-e .

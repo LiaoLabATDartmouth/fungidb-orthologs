@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["fungidb_orthologs*"]
+exclude = ["tests*", "query_genomes*"]
+
+[project]
+name = "fungidb-orthologs"
+version = "0.1.0"
+description = "Fetch orthologs from FungiDB for fungal genomes (C. albicans, S. cerevisiae, S. pombe, and more)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{name = "Liao Lab"}]
+keywords = ["fungi", "ortholog", "FungiDB", "bioinformatics"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "httpx>=0.26.0",
+    "pandas>=2.0.0",
+    "biopython>=1.83",
+]
+
+[project.optional-dependencies]
+api = ["fastapi>=0.109.0", "uvicorn[standard]>=0.27.0", "pydantic>=2.0"]
+dev = ["pytest>=7.0", "pytest-timeout>=2.0"]
+
+[project.scripts]
+fungidb-orthologs = "fungidb_orthologs.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/your-lab/fungidb-orthologs"
+Repository = "https://github.com/your-lab/fungidb-orthologs"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v"
