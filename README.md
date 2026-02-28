@@ -6,23 +6,21 @@ A pip-installable tool to fetch orthologs from **FungiDB** for fungal genomes. S
 
 ## Installation
 
-### For lab members
+### For researchers
 
-**Option 1: Install from GitHub** (after pushing to your lab's repo)
+**Option 1: Install from GitHub**
 
 ```bash
-pip install git+https://github.com/YOUR-LAB-ORG/fungidb-orthologs.git
+pip install git+https://github.com/LiaoLabATDartmouth/fungidb-orthologs.git
 ```
 
 **Option 2: Clone and install locally**
 
 ```bash
-git clone https://github.com/YOUR-LAB-ORG/fungidb-orthologs.git
+git clone https://github.com/LiaoLabATDartmouth/fungidb-orthologs.git
 cd fungidb-orthologs
 pip install -e .
 ```
-
-Replace `YOUR-LAB-ORG` with your lab's GitHub organization or username.
 
 ### Optional: API server
 
