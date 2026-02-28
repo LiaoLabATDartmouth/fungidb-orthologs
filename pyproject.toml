@@ -38,8 +38,8 @@ dev = ["pytest>=7.0", "pytest-timeout>=2.0"]
 fungidb-orthologs = "fungidb_orthologs.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/your-lab/fungidb-orthologs"
-Repository = "https://github.com/your-lab/fungidb-orthologs"
+Homepage = "https://github.com/LiaoLabATDartmouth/fungidb_orthologs"
+Repository = "https://github.com/LiaoLabATDartmouth/fungidb_orthologs"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
