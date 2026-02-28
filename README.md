@@ -4,6 +4,23 @@ A pip-installable tool to fetch orthologs from **FungiDB** for fungal genomes. S
 
 **Note:** FungiDB only has orthology for genomes already in FungiDB. For truly new genomes not in the database, you would need a local orthology pipeline (e.g. OrthoFinder).
 
+## Prerequisites
+
+- **Python 3.10 or newer**
+- **pip** (Python package installer)
+
+When you install this package with `pip install ...`, the following dependencies are installed automatically:
+
+| Package   | Purpose                    |
+|-----------|----------------------------|
+| httpx     | HTTP requests to FungiDB   |
+| pandas    | Table data and TSV output  |
+| biopython | Parse FASTA (locus_tag)    |
+
+**Optional (only if you use the REST API):** `pip install "fungidb-orthologs[api]"` adds FastAPI, Uvicorn, and Pydantic.
+
+**Optional (only if you run tests):** `pip install -e ".[dev]"` adds pytest and pytest-timeout.
+
 ## Installation
 
 ### For researchers
@@ -11,14 +28,14 @@ A pip-installable tool to fetch orthologs from **FungiDB** for fungal genomes. S
 **Option 1: Install from GitHub**
 
 ```bash
-pip install git+https://github.com/LiaoLabATDartmouth/fungidb-orthologs.git
+pip install git+https://github.com/LiaoLabATDartmouth/fungidb_orthologs.git
 ```
 
 **Option 2: Clone and install locally**
 
 ```bash
-git clone https://github.com/LiaoLabATDartmouth/fungidb-orthologs.git
-cd fungidb-orthologs
+git clone https://github.com/LiaoLabATDartmouth/fungidb_orthologs.git
+cd fungidb_orthologs
 pip install -e .
 ```
 
