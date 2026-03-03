@@ -95,9 +95,12 @@ def filter_orthologs_to_references(
     for key in reference_organisms:
         if key in FUNGIDB_ORGANISMS:
             allowed.add(FUNGIDB_ORGANISMS[key])
-    return ortholog_df[
-        ortholog_df[org_col].astype(str).str.strip().isin(allowed)
-    ].copy()
+    # Normalize: FungiDB API sometimes returns trailing hyphen (e.g. "Schizosaccharomyces pombe 972h-")
+    def _norm(s: str) -> str:
+        return s.strip().rstrip("-").strip()
+    org_series = ortholog_df[org_col].astype(str).apply(_norm)
+    allowed_norm = {_norm(a) for a in allowed}
+    return ortholog_df[org_series.isin(allowed_norm)].copy()
 
 
 def get_orthologs_for_genes(
