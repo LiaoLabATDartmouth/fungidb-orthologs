@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 
@@ -23,9 +23,10 @@ app = FastAPI(
 class OrthologRequest(BaseModel):
     fasta_path: str = Field(..., description="Path to CDS or protein FASTA")
     organism: str | None = Field(None, description="FungiDB organism key (e.g. AfumigatusA1163)")
-    references: list[str] | None = Field(
-        None,
-        description="Reference genomes (default: CalbicansSC5314, ScerevisiaeS288C, Spombe972h)",
+    references: list[str] = Field(
+        ...,
+        min_length=1,
+        description="Reference genome keys (at least one), same as CLI --references",
     )
 
 
@@ -66,8 +67,8 @@ def post_orthologs(req: OrthologRequest):
         fasta_path = _resolve_fasta_path(req.fasta_path)
         df, organism = get_orthologs_for_genome(
             fasta_path,
+            req.references,
             organism=req.organism,
-            reference_species=req.references,
         )
     except FileNotFoundError as e:
         raise HTTPException(404, str(e))
@@ -83,15 +84,18 @@ def post_orthologs(req: OrthologRequest):
 
 @app.get("/orthologs")
 def get_orthologs(
-    fasta_path: str | None = None,
+    fasta_path: str,
+    references: list[str] = Query(
+        ...,
+        min_length=1,
+        description="Reference genome keys (repeat param for multiple)",
+    ),
     organism: str | None = None,
 ):
-    """Get orthologs: pass fasta_path (and optionally organism)."""
-    if not fasta_path:
-        raise HTTPException(400, "Provide fasta_path")
+    """Get orthologs: pass fasta_path, references (one or more), and optionally organism."""
     try:
         path = _resolve_fasta_path(fasta_path)
-        df, org = get_orthologs_for_genome(path, organism=organism)
+        df, org = get_orthologs_for_genome(path, references, organism=organism)
     except FileNotFoundError as e:
         raise HTTPException(404, str(e))
     except ValueError as e:
@@ -100,13 +104,15 @@ def get_orthologs(
 
 
 @app.get("/orthologs/tsv", response_class=PlainTextResponse)
-def get_orthologs_tsv(fasta_path: str | None = None, organism: str | None = None):
+def get_orthologs_tsv(
+    fasta_path: str,
+    references: list[str] = Query(..., min_length=1),
+    organism: str | None = None,
+):
     """Same as GET /orthologs but returns TSV."""
-    if not fasta_path:
-        raise HTTPException(400, "Provide fasta_path")
     try:
         path = _resolve_fasta_path(fasta_path)
-        df, _ = get_orthologs_for_genome(path, organism=organism)
+        df, _ = get_orthologs_for_genome(path, references, organism=organism)
     except (FileNotFoundError, ValueError) as e:
         raise HTTPException(404 if "not found" in str(e).lower() else 400, str(e))
     return df.to_csv(sep="\t", index=False)

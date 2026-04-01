@@ -24,6 +24,38 @@ def cmd_list_genomes(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_list_organisms(args: argparse.Namespace) -> int:
+    """List GenesByTaxonGene organism vocabulary (keys and API strings)."""
+    from fungidb_orthologs.organisms import list_gene_search_organisms
+
+    try:
+        rows = list_gene_search_organisms()
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+    lines: list[str] = []
+    if args.keys_only:
+        lines = [k for k, _ in rows]
+    elif args.vocabulary_only:
+        lines = [t for _, t in rows]
+    else:
+        lines = ["key\tvocabulary_organism"]
+        lines.extend(f"{k}\t{t}" for k, t in rows)
+
+    text = "\n".join(lines) + ("\n" if lines else "")
+    out = args.output
+    if out:
+        Path(out).write_text(text)
+        print(f"Wrote {len(rows)} organisms to {out}", file=sys.stderr)
+    else:
+        sys.stdout.write(text)
+
+    if not out:
+        print(f"\nTotal: {len(rows)} organisms (GenesByTaxonGene vocabulary)", file=sys.stderr)
+    return 0
+
+
 def cmd_extract(args: argparse.Namespace) -> int:
     """Extract orthologs for a target genome from reference genomes."""
     from fungidb_orthologs.service import get_orthologs_for_genome
@@ -48,8 +80,8 @@ def cmd_extract(args: argparse.Namespace) -> int:
                 return 1
             df, organism = get_orthologs_for_genome(
                 path,
+                references,
                 organism=target,
-                reference_species=references,
             )
             print(f"Target organism (from FASTA): {organism}", file=sys.stderr)
         else:
@@ -86,6 +118,29 @@ def main() -> int:
     # list-genomes
     p_list = sub.add_parser("list-genomes", help="List all available FungiDB genomes")
     p_list.set_defaults(func=cmd_list_genomes)
+
+    # list-organisms
+    p_org = sub.add_parser(
+        "list-organisms",
+        help="List GenesByTaxonGene organism vocabulary (download keys and API strings)",
+    )
+    fmt = p_org.add_mutually_exclusive_group()
+    fmt.add_argument(
+        "--keys-only",
+        action="store_true",
+        help="Print only download-style keys (one per line)",
+    )
+    fmt.add_argument(
+        "--vocabulary-only",
+        action="store_true",
+        help="Print only FungiDB vocabulary organism strings (one per line)",
+    )
+    p_org.add_argument(
+        "-o",
+        "--output",
+        help="Write output to a file instead of stdout",
+    )
+    p_org.set_defaults(func=cmd_list_organisms)
 
     # extract
     p_extract = sub.add_parser(

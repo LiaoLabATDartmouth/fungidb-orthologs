@@ -53,9 +53,30 @@ pip install "fungidb-orthologs[api]"
 fungidb-orthologs list-genomes
 ```
 
-Shows all ~700+ FungiDB genomes (e.g. `AfumigatusA1163`, `CalbicansSC5314`, `ScerevisiaeS288C`, `Spombe972h`).
+Shows **download index** folder names (~700+), e.g. `AfumigatusA1163`, `CalbicansSC5314`. Not every folder has a gene search entry; see step 1b.
+
+### 1b. List gene-search organisms (GenesByTaxonGene vocabulary)
+
+```bash
+fungidb-orthologs list-organisms
+```
+
+Prints a TSV with header `key` and `vocabulary_organism`: the short **key** (same style as many `list-genomes` names) and the **exact organism string** FungiDB uses in `GenesByTaxonGene` and in `OrthologsLite` (e.g. `Neurospora crassa OR74A`). Use this when you need the API-facing label or to confirm a genome is queryable via gene search.
+
+```bash
+# Only vocabulary strings (one per line)
+fungidb-orthologs list-organisms --vocabulary-only
+
+# Only keys (one per line)
+fungidb-orthologs list-organisms --keys-only
+
+# Write TSV to a file
+fungidb-orthologs list-organisms -o gene_search_organisms.tsv
+```
 
 ### 2. Extract orthologs
+
+References are **never** defaulted: you must pass `-r` / `--references` with at least one genome (see `list-genomes` / `list-organisms`).
 
 **By organism key** (no FASTA needed):
 
@@ -79,8 +100,17 @@ fungidb-orthologs extract \
 
 | Command | Description |
 |---------|-------------|
-| `fungidb-orthologs list-genomes` | List all available FungiDB genomes |
+| `fungidb-orthologs list-genomes` | List download-site genome folder names (~700+) |
+| `fungidb-orthologs list-organisms` | List GenesByTaxonGene organism vocabulary (key + API string) |
 | `fungidb-orthologs extract` | Extract orthologs from target to reference genomes |
+
+### list-organisms options
+
+| Option | Description |
+|--------|-------------|
+| `--keys-only` | Print only download-style keys (one per line) |
+| `--vocabulary-only` | Print only FungiDB vocabulary organism strings (one per line) |
+| `-o`, `--output` | Write to a file instead of stdout |
 
 ### Extract options
 
@@ -103,10 +133,18 @@ fungidb-orthologs extract \
 ## Python API
 
 ```python
-from fungidb_orthologs import list_genomes, get_orthologs_for_genome, get_orthologs_by_organism
+from fungidb_orthologs import (
+    list_genomes,
+    list_gene_search_organisms,
+    get_orthologs_for_genome,
+    get_orthologs_by_organism,
+)
 
-# List genomes
+# Download index folder names
 genomes = list_genomes()
+
+# Gene search vocabulary: list of (key, vocabulary_organism_string)
+organisms = list_gene_search_organisms()
 
 # By organism key
 df = get_orthologs_by_organism(
@@ -114,10 +152,10 @@ df = get_orthologs_by_organism(
     reference_organisms=["CalbicansSC5314", "ScerevisiaeS288C", "Spombe972h"],
 )
 
-# From FASTA
+# From FASTA (references required; no defaults)
 df, organism = get_orthologs_for_genome(
     "query_genomes/A1163_ASM15014v1_cds_from_genomic.fna",
-    reference_species=["CalbicansSC5314", "ScerevisiaeS288C", "Spombe972h"],
+    ["CalbicansSC5314", "ScerevisiaeS288C", "Spombe972h"],
 )
 ```
 
@@ -128,7 +166,7 @@ pip install "fungidb-orthologs[api]"
 uvicorn fungidb_orthologs.api:app --reload --port 8000
 ```
 
-Then: `POST /orthologs` with `{"fasta_path": "...", "organism": "AfumigatusA1163"}` or `GET /orthologs?fasta_path=...`
+Then: `POST /orthologs` with JSON including `"fasta_path"`, `"references": ["CalbicansSC5314", ...]` (required), and optional `"organism"`. For GET, pass `fasta_path` and repeat `references` for each reference (e.g. `?references=CalbicansSC5314&references=Spombe972h`).
 
 ## Tests
 

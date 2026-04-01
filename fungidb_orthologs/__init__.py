@@ -9,10 +9,12 @@ __version__ = "0.1.0"
 
 from fungidb_orthologs.client import get_orthologs_for_genes
 from fungidb_orthologs.genomes import list_genomes
+from fungidb_orthologs.organisms import list_gene_search_organisms
 from fungidb_orthologs.service import get_orthologs_for_genome
 
 __all__ = [
     "get_orthologs_for_genes",
     "get_orthologs_for_genome",
+    "list_gene_search_organisms",
     "list_genomes",
 ]

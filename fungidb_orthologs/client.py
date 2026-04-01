@@ -12,7 +12,7 @@ import json
 import httpx
 import pandas as pd
 
-from fungidb_orthologs.config import FUNGIDB_ORGANISMS
+from fungidb_orthologs.organisms import resolve_to_api_organism
 
 FUNGIDB_BASE = "https://fungidb.org/fungidb"
 REPORT_URL = f"{FUNGIDB_BASE}/service/record-types/gene/searches/GenesByTaxonGene/reports/tableTabular"
@@ -20,8 +20,8 @@ TIMEOUT = 300  # ortholog table can be large
 
 
 def _organism_for_api(organism: str) -> str:
-    """Use full display name for API if we have it."""
-    return FUNGIDB_ORGANISMS.get(organism, organism)
+    """Map list-genomes key (or full organism label) to FungiDB gene-search organism string."""
+    return resolve_to_api_organism(organism)
 
 
 def fetch_ortholog_table(organism: str) -> pd.DataFrame:
@@ -91,10 +91,10 @@ def filter_orthologs_to_references(
     org_col = "ORTHOLOGS_ORGANISM"
     if org_col not in ortholog_df.columns:
         return ortholog_df
-    allowed = set(reference_organisms)
-    for key in reference_organisms:
-        if key in FUNGIDB_ORGANISMS:
-            allowed.add(FUNGIDB_ORGANISMS[key])
+    allowed: set[str] = set()
+    for ref in reference_organisms:
+        allowed.add(ref)
+        allowed.add(resolve_to_api_organism(ref))
     # Normalize: FungiDB API sometimes returns trailing hyphen (e.g. "Schizosaccharomyces pombe 972h-")
     def _norm(s: str) -> str:
         return s.strip().rstrip("-").strip()
@@ -105,17 +105,22 @@ def filter_orthologs_to_references(
 
 def get_orthologs_for_genes(
     organism: str,
+    reference_organisms: list[str],
     gene_ids: list[str] | None = None,
-    reference_organisms: list[str] | None = None,
 ) -> pd.DataFrame:
     """
-    Get orthologs for an organism, optionally restricted to given gene IDs and reference species.
+    Get orthologs for an organism, restricted to the given reference genome keys (or vocabulary strings).
+
+    ``reference_organisms`` must be a non-empty list (same style as ``list-genomes`` / ``extract -r``).
     """
-    from fungidb_orthologs.config import DEFAULT_REFERENCE_SPECIES
+    if not reference_organisms:
+        raise ValueError(
+            "reference_organisms is required: pass at least one reference genome "
+            "(e.g. CalbicansSC5314). Use `fungidb-orthologs list-genomes` or `list-organisms`."
+        )
 
     df = fetch_ortholog_table(organism)
-    refs = reference_organisms or DEFAULT_REFERENCE_SPECIES
-    df = filter_orthologs_to_references(df, refs)
+    df = filter_orthologs_to_references(df, reference_organisms)
     if gene_ids is not None:
         df = df[df["GID"].astype(str).isin(set(str(g) for g in gene_ids))].copy()
     return df.reset_index(drop=True)

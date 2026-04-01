@@ -16,9 +16,14 @@ TIMEOUT = 30
 
 def list_genomes() -> list[str]:
     """
-    Fetch and return all FungiDB organism keys (genome identifiers).
+    Fetch and return organism keys from the FungiDB downloads index (folder names).
 
-    Returns a sorted list of organism keys, e.g. ['AfumigatusA1163', 'CalbicansSC5314', ...].
+    This list is larger than the set of genomes exposed in the ``GenesByTaxonGene``
+    search; ``extract`` resolves keys against that search vocabulary (see
+    ``organisms.resolve_to_api_organism``). Keys with no gene search entry will
+    fail at the ortholog API with HTTP 422.
+
+    Returns a sorted list of keys, e.g. ``AfumigatusA1163``, ``CalbicansSC5314``, ...
     """
     with httpx.Client(timeout=TIMEOUT) as client:
         r = client.get(FUNGIDB_DOWNLOADS)
