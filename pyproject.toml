@@ -8,7 +8,7 @@ exclude = ["tests*", "query_genomes*"]
 
 [project]
 name = "fungidb-orthologs"
-version = "0.1.1"
+version = "0.1.2"
 description = "Fetch orthologs from FungiDB for fungal genomes (C. albicans, S. cerevisiae, S. pombe, and more)"
 readme = "README.md"
 license = "MIT"
@@ -36,7 +36,10 @@ api = ["fastapi>=0.109.0", "uvicorn[standard]>=0.27.0", "pydantic>=2.0"]
 dev = ["pytest>=7.0", "pytest-timeout>=2.0"]
 
 [project.scripts]
+# If `fungidb-orthologs` runs an old binary (e.g. another install or Homebrew earlier on PATH), use
+# `fungi-orthologs` or `python -m fungidb_orthologs` instead.
 fungidb-orthologs = "fungidb_orthologs.cli:main"
+fungi-orthologs = "fungidb_orthologs.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/LiaoLabATDartmouth/fungidb-orthologs"

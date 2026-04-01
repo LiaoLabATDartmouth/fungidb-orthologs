@@ -47,18 +47,32 @@ pip install "fungidb-orthologs[api]"
 
 ### Troubleshooting: `list-organisms` missing or “invalid choice”
 
-`pip` installed a new copy, but the shell command `fungidb-orthologs` can still point at an **older script** on your `PATH` (another Python install, Homebrew, or a previous environment).
+`pip` installed the new package, but the name `fungidb-orthologs` on your shell `PATH` may still run a **different, older program** (common on macOS if **Homebrew**’s `/opt/homebrew/bin` comes before pip’s scripts, or if you have several Pythons).
 
-1. See which script runs: `which fungidb-orthologs` and `head -1 "$(which fungidb-orthologs)"` (first line shows which Python it uses).
-2. Use the **same interpreter** you used for `pip install`:
+1. **See every candidate on PATH** (zsh/bash):
+
+   ```bash
+   type -a fungidb-orthologs
+   head -5 "$(which fungidb-orthologs)"
+   ```
+
+   If the first hit is not from the `bin` directory of the Python you used for `pip install`, that explains the old `{list-genomes,extract}` menu.
+
+2. **Use the pip-installed CLI under another name** (same code, no name collision):
+
+   ```bash
+   fungi-orthologs list-organisms --vocabulary-only
+   ```
+
+3. **Or** run via the interpreter you used for `pip install`:
 
    ```bash
    python -m fungidb_orthologs list-organisms --vocabulary-only
    ```
 
-   or explicitly, e.g. `python3.9 -m fungidb_orthologs ...`
+4. **Fix PATH / remove the impostor:** uninstall an old Homebrew formula if present (`brew list | grep -i fungi`), or put your venv’s `bin` **before** `/opt/homebrew/bin`, or use only a venv for this tool.
 
-3. Prefer a **venv** so `pip install` and `fungidb-orthologs` match: activate the venv, then `pip install ...` and run `fungidb-orthologs` (or `python -m fungidb_orthologs`).
+5. Prefer a **venv** so `pip install` and the scripts in that venv’s `bin` stay aligned.
 
 ## Quick start
 
@@ -89,6 +103,8 @@ fungidb-orthologs list-organisms --keys-only
 fungidb-orthologs list-organisms -o gene_search_organisms.tsv
 ```
 
+If `fungidb-orthologs` runs an old binary, use **`fungi-orthologs`** (same CLI, different name) or `python -m fungidb_orthologs` (see [Troubleshooting](#troubleshooting-list-organisms-missing-or-invalid-choice)).
+
 ### 2. Extract orthologs
 
 References are **never** defaulted: you must pass `-r` / `--references` with at least one genome (see `list-genomes` / `list-organisms`).
@@ -117,6 +133,7 @@ fungidb-orthologs extract \
 |---------|-------------|
 | `fungidb-orthologs list-genomes` | List download-site genome folder names (~700+) |
 | `fungidb-orthologs list-organisms` | List GenesByTaxonGene organism vocabulary (key + API string) |
+| `fungi-orthologs …` | Same as above if `fungidb-orthologs` is shadowed on `PATH` |
 | `fungidb-orthologs extract` | Extract orthologs from target to reference genomes |
 
 ### list-organisms options
