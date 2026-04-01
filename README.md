@@ -45,6 +45,21 @@ pip install -e .
 pip install "fungidb-orthologs[api]"
 ```
 
+### Troubleshooting: `list-organisms` missing or “invalid choice”
+
+`pip` installed a new copy, but the shell command `fungidb-orthologs` can still point at an **older script** on your `PATH` (another Python install, Homebrew, or a previous environment).
+
+1. See which script runs: `which fungidb-orthologs` and `head -1 "$(which fungidb-orthologs)"` (first line shows which Python it uses).
+2. Use the **same interpreter** you used for `pip install`:
+
+   ```bash
+   python -m fungidb_orthologs list-organisms --vocabulary-only
+   ```
+
+   or explicitly, e.g. `python3.9 -m fungidb_orthologs ...`
+
+3. Prefer a **venv** so `pip install` and `fungidb-orthologs` match: activate the venv, then `pip install ...` and run `fungidb-orthologs` (or `python -m fungidb_orthologs`).
+
 ## Quick start
 
 ### 1. List available genomes
