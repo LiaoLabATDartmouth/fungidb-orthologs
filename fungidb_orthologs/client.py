@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import io
 import json
+from typing import Optional
 
 import httpx
 import pandas as pd
@@ -106,7 +107,7 @@ def filter_orthologs_to_references(
 def get_orthologs_for_genes(
     organism: str,
     reference_organisms: list[str],
-    gene_ids: list[str] | None = None,
+    gene_ids: Optional[list[str]] = None,
 ) -> pd.DataFrame:
     """
     Get orthologs for an organism, restricted to the given reference genome keys (or vocabulary strings).

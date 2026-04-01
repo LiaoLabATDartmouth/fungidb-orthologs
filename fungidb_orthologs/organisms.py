@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import functools
 import re
+from typing import Optional
 
 import httpx
 
@@ -121,7 +122,7 @@ def resolve_to_api_organism(identifier: str) -> str:
     return key_to_term.get(s, s)
 
 
-def get_fungidb_organism_key(name: str) -> str | None:
+def get_fungidb_organism_key(name: str) -> Optional[str]:
     """
     Resolve a user-provided label to a download-style organism key when possible.
 

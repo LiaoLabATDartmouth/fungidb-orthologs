@@ -7,6 +7,7 @@ Run: uvicorn fungidb_orthologs.api:app --reload --port 8000
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import PlainTextResponse
@@ -22,7 +23,7 @@ app = FastAPI(
 
 class OrthologRequest(BaseModel):
     fasta_path: str = Field(..., description="Path to CDS or protein FASTA")
-    organism: str | None = Field(None, description="FungiDB organism key (e.g. AfumigatusA1163)")
+    organism: Optional[str] = Field(None, description="FungiDB organism key (e.g. AfumigatusA1163)")
     references: list[str] = Field(
         ...,
         min_length=1,
@@ -90,7 +91,7 @@ def get_orthologs(
         min_length=1,
         description="Reference genome keys (repeat param for multiple)",
     ),
-    organism: str | None = None,
+    organism: Optional[str] = None,
 ):
     """Get orthologs: pass fasta_path, references (one or more), and optionally organism."""
     try:
@@ -107,7 +108,7 @@ def get_orthologs(
 def get_orthologs_tsv(
     fasta_path: str,
     references: list[str] = Query(..., min_length=1),
-    organism: str | None = None,
+    organism: Optional[str] = None,
 ):
     """Same as GET /orthologs but returns TSV."""
     try:

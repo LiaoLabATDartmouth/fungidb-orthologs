@@ -5,6 +5,7 @@ Orchestrates ortholog lookup: parse genome FASTA, call FungiDB, return orthologs
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional, Union
 
 import pandas as pd
 
@@ -14,9 +15,9 @@ from fungidb_orthologs.genome_parser import get_gene_ids_from_fasta, infer_fungi
 
 
 def get_orthologs_for_genome(
-    fasta_path: str | Path,
+    fasta_path: Union[str, Path],
     reference_species: list[str],
-    organism: str | None = None,
+    organism: Optional[str] = None,
 ) -> tuple[pd.DataFrame, str]:
     """
     Get orthologs for all genes in a genome FASTA.
@@ -58,7 +59,7 @@ def get_orthologs_for_genome(
 def get_orthologs_by_organism(
     target_organism: str,
     reference_organisms: list[str],
-    gene_ids: list[str] | None = None,
+    gene_ids: Optional[list[str]] = None,
 ) -> pd.DataFrame:
     """
     Get orthologs for a target organism (by FungiDB key) from specified reference organisms.

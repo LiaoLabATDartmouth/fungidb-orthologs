@@ -6,7 +6,7 @@ A pip-installable tool to fetch orthologs from **FungiDB** for fungal genomes. S
 
 ## Prerequisites
 
-- **Python 3.10 or newer**
+- **Python 3.9 or newer** (3.10+ recommended)
 - **pip** (Python package installer)
 
 When you install this package with `pip install ...`, the following dependencies are installed automatically:

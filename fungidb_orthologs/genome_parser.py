@@ -6,11 +6,12 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Optional, Union
 
 from Bio import SeqIO
 
 
-def parse_locus_tag(header: str) -> str | None:
+def parse_locus_tag(header: str) -> Optional[str]:
     """Extract locus_tag from a FASTA header if present."""
     m = re.search(r"\[locus_tag=([^\]]+)\]", header, re.IGNORECASE)
     if m:
@@ -23,7 +24,7 @@ def parse_locus_tag(header: str) -> str | None:
     return None
 
 
-def get_gene_ids_from_fasta(fasta_path: str | Path) -> list[str]:
+def get_gene_ids_from_fasta(fasta_path: Union[str, Path]) -> list[str]:
     """Read a CDS or protein FASTA and return a list of gene IDs."""
     path = Path(fasta_path)
     if not path.exists():
@@ -36,7 +37,7 @@ def get_gene_ids_from_fasta(fasta_path: str | Path) -> list[str]:
     return ids
 
 
-def infer_fungidb_organism_from_fasta(fasta_path: str | Path) -> str | None:
+def infer_fungidb_organism_from_fasta(fasta_path: Union[str, Path]) -> Optional[str]:
     """Heuristic: infer FungiDB organism from FASTA headers or filename."""
     path = Path(fasta_path)
     if not path.exists():
